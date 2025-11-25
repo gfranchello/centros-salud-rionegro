@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión - Centros de Salud Río Negro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connection-status.connected {
+            background: #28a745;
+            color: white;
+        }
+
+        .connection-status.disconnected {
+            background: #dc3545;
+            color: white;
+        }
+
+        .connection-status.loading {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .filters-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        select, input[type="text"], input[type="number"], input[type="email"], textarea {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95em;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background: #e0a800;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #5a6268;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .results-info {
+            padding: 12px;
+            background: #e7f3ff;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: #004085;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .badge-hospital {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge-caps {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-centro {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .badge-nivel-8 {
+            background: #8b0000;
+            color: white;
+        }
+
+        .badge-nivel-6 {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge-nivel-4 {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .badge-nivel-3 {
+            background: #28a745;
+            color: white;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .info-item {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .report-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .report-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .tabs, .filters-section, .actions-bar, .card-actions, .connection-status {
+                display: none !important;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .form-grid, .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status loading" id="connectionStatus">
+        <span>⏳</span> Conectando...
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🏥 Sistema de Gestión de Centros de Salud</h1>
+            <p class="subtitle">Provincia de Río Negro</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('consulta')">📋 Consultar Centros</button>
+            <button class="tab" onclick="showTab('gestion')">✏️ Gestionar Centros</button>
+            <button class="tab" onclick="showTab('reportes')">📊 Reportes</button>
+        </div>
+
+        <!-- TAB: CONSULTAR CENTROS -->
+        <div id="tab-consulta" class="tab-content active">
+            <div class="filters-section">
+                <h3 style="margin-bottom: 15px;">🔍 Filtros de Búsqueda</h3>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Zona Sanitaria:</label>
+                        <select id="filtroZona" onchange="filtrarCentros()">
+                            <option value="">Todas las zonas</option>
+                            <option value="ALTO VALLE OESTE">ALTO VALLE OESTE</option>
+                            <option value="ALTO VALLE ESTE">ALTO VALLE ESTE</option>
+                            <option value="VALLE MEDIO">VALLE MEDIO</option>
+                            <option value="ZONA ATLANTICA">ZONA ATLANTICA</option>
+                            <option value="ZONA ANDINA">ZONA ANDINA</option>
+                            <option value="ZONA SUR">ZONA SUR</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Tipo de Centro:</label>
+                        <select id="filtroTipo" onchange="filtrarCentros()">
+                            <option value="">Todos los tipos</option>
+                            <option value="Hospital">Hospital</option>
+                            <option value="CAPS">CAPS</option>
+                            <option value="Centro de Salud">Centro de Salud</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Nivel de Complejidad:</label>
+                        <select id="filtroComplejidad" onchange="filtrarCentros()">
+                            <option value="">Todos los niveles</option>
+                            <option value="8">Nivel 8 - Alta Complejidad</option>
+                            <option value="6">Nivel 6 - Mediana Complejidad</option>
+                            <option value="4">Nivel 4 - Mediana-Baja</option>
+                            <option value="3">Nivel 3 - Baja Complejidad</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Localidad:</label>
+                        <select id="filtroLocalidad" onchange="filtrarCentros()">
+                            <option value="">Todas las localidades</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Búsqueda por nombre:</label>
+                        <input type="text" id="filtroBusqueda" placeholder="Escribir nombre..." onkeyup="filtrarCentros()">
+                    </div>
+                </div>
+                <div class="actions-bar">
+                    <button class="btn btn-secondary" onclick="limpiarFiltros()">🔄 Limpiar Filtros</button>
+                    <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+                    <button class="btn btn-success" onclick="exportarDatos()">📥 Exportar JSON</button>
+                </div>
+            </div>
+
+            <div class="results-info" id="resultsInfo"></div>
+            <div id="centrosListado"></div>
+        </div>
+
+        <!-- TAB: GESTIONAR CENTROS -->
+        <div id="tab-gestion" class="tab-content">
+            <div class="actions-bar">
+                <button class="btn btn-success" onclick="mostrarModalNuevo()">➕ Nuevo Centro</button>
+                <button class="btn btn-primary" onclick="cargarCentros()">🔄 Recargar Datos</button>
+            </div>
+            <div id="centrosGestion"></div>
+        </div>
+
+        <!-- TAB: REPORTES -->
+        <div id="tab-reportes" class="tab-content">
+            <div class="filters-section">
+                <h3 style="margin-bottom: 15px;">📊 Generar Reporte</h3>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Tipo de Reporte:</label>
+                        <select id="tipoReporte" onchange="generarReporte()">
+                            <option value="general">Estadísticas Generales</option>
+                            <option value="zona">Por Zona Sanitaria</option>
+                            <option value="tipo">Por Tipo de Centro</option>
+                            <option value="complejidad">Por Nivel de Complejidad</option>
+                            <option value="conectividad">Conectividad</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Filtrar por Zona:</label>
+                        <select id="reporteZona" onchange="generarReporte()">
+                            <option value="">Todas las zonas</option>
+                            <option value="ALTO VALLE OESTE">ALTO VALLE OESTE</option>
+                            <option value="ALTO VALLE ESTE">ALTO VALLE ESTE</option>
+                            <option value="VALLE MEDIO">VALLE MEDIO</option>
+                            <option value="ZONA ATLANTICA">ZONA ATLANTICA</option>
+                            <option value="ZONA ANDINA">ZONA ANDINA</option>
+                            <option value="ZONA SUR">ZONA SUR</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir Reporte</button>
+            </div>
+
+            <div id="reporteContenido"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: AGREGAR/EDITAR CENTRO -->
+    <div id="modalCentro" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Nuevo Centro de Salud</h2>
+                <button class="close-modal" onclick="cerrarModal()">×</button>
+            </div>
+
+            <form id="formCentro" onsubmit="guardarCentro(event)">
+                <input type="hidden" id="centroId">
+
+                <h3 style="margin-bottom: 15px; color: #667eea;">📍 Información Básica</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nombre del Centro: *</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Centro: *</label>
+                        <select id="tipo" required onchange="mostrarOcultarComplejidad()">
+                            <option value="">Seleccionar...</option>
+                            <option value="Hospital">Hospital</option>
+                            <option value="CAPS">CAPS</option>
+                            <option value="Centro de Salud">Centro de Salud</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="complejidadGroup" style="display: none;">
+                        <label>Nivel de Complejidad: *</label>
+                        <select id="complejidad">
+                            <option value="">Seleccionar...</option>
+                            <option value="8">Nivel 8 - Alta Complejidad</option>
+                            <option value="6">Nivel 6 - Mediana Complejidad</option>
+                            <option value="4">Nivel 4 - Mediana-Baja</option>
+                            <option value="3">Nivel 3 - Baja Complejidad</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Zona Sanitaria: *</label>
+                        <select id="zona" required onchange="cargarLocalidades()">
+                            <option value="">Seleccionar...</option>
+                            <option value="ALTO VALLE OESTE">ALTO VALLE OESTE</option>
+                            <option value="ALTO VALLE ESTE">ALTO VALLE ESTE</option>
+                            <option value="VALLE MEDIO">VALLE MEDIO</option>
+                            <option value="ZONA ATLANTICA">ZONA ATLANTICA</option>
+                            <option value="ZONA ANDINA">ZONA ANDINA</option>
+                            <option value="ZONA SUR">ZONA SUR</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Localidad: *</label>
+                        <select id="localidad" required>
+                            <option value="">Seleccionar zona primero...</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Dirección:</label>
+                        <input type="text" id="direccion">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono:</label>
+                        <input type="text" id="telefono">
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="email">
+                    </div>
+                </div>
+
+                <h3 style="margin: 20px 0 15px; color: #667eea;">🌐 Conectividad</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Proveedor de Internet:</label>
+                        <input type="text" id="proveedor" placeholder="Ej: Arlink, Telecom">
+                    </div>
+                    <div class="form-group">
+                        <label>Velocidad (Mbps):</label>
+                        <input type="number" id="velocidad" placeholder="Ej: 100">
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad de PCs:</label>
+                        <input type="number" id="cantidadPCs" placeholder="Ej: 10">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Conexión:</label>
+                        <select id="tipoConexion">
+                            <option value="">Seleccionar...</option>
+                            <option value="Fibra Óptica">Fibra Óptica</option>
+                            <option value="ADSL">ADSL</option>
+                            <option value="Cable">Cable</option>
+                            <option value="Inalámbrico">Inalámbrico</option>
+                            <option value="Satelital">Satelital</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3 style="margin: 20px 0 15px; color: #667eea;">📝 Información Adicional</h3>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Observaciones:</label>
+                        <textarea id="observaciones" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-success" id="btnGuardar">💾 Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN DE SUPABASE
+        // ============================================
+        // IMPORTANTE: Reemplazar estos valores con los tuyos
+        const SUPABASE_URL = 'https://voyyztnhbapxwygyyncs.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZveXl6dG5oYmFweHd5Z3l5bmNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMzA0NjgsImV4cCI6MjA3OTYwNjQ2OH0.iJRvYwwML1OqfblTZ-cq4vlw3hQUxrq_2WMKMMCp2Yw';
+
+        // Inicializar cliente de Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ============================================
+        // VARIABLES GLOBALES
+        // ============================================
+        const localidadesPorZona = {
+            "ALTO VALLE OESTE": ["Cipolletti", "Cinco Saltos", "Catriel", "Fernandez Oro", "Campo Grande"],
+            "ALTO VALLE ESTE": ["General Roca", "Allen", "Villa Regina", "Ingeniero Huergo", "Cervantes", "Adanil", "Chinchinales", "El Cuy"],
+            "VALLE MEDIO": ["Choele Choel", "Rio Colorado", "Lamarque", "Chimpay", "Luis Beltran", "Belisle", "Pomona"],
+            "ZONA ATLANTICA": ["San Antonio Oeste", "General Conesa", "Valcheta", "Sierra Grande", "Guardia Mitre", "Las Grutas", "Viedma"],
+            "ZONA ANDINA": ["Bariloche", "El Bolsón", "Pilcaniyeu", "Comallo", "Ñorquinco"],
+            "ZONA SUR": ["Ingeniero Jacobacci", "Maquinchao", "Los Menucos", "Sierra Colorada", "Ramos Mexia"]
+        };
+
+        let centrosSalud = [];
+        let editandoId = null;
+
+        // ============================================
+        // FUNCIONES AUXILIARES PARA COMPLEJIDAD
+        // ============================================
+        function getNivelComplejidadText(nivel) {
+            const niveles = {
+                8: 'Nivel 8 - Alta Complejidad',
+                6: 'Nivel 6 - Mediana Complejidad',
+                4: 'Nivel 4 - Mediana-Baja',
+                3: 'Nivel 3 - Baja Complejidad'
+            };
+            return niveles[nivel] || '';
+        }
+
+        function getNivelComplejidadShort(nivel) {
+            const niveles = {
+                8: 'Nivel 8',
+                6: 'Nivel 6',
+                4: 'Nivel 4',
+                3: 'Nivel 3'
+            };
+            return niveles[nivel] || '';
+        }
+
+        function mostrarOcultarComplejidad() {
+            const tipo = document.getElementById('tipo').value;
+            const complejidadGroup = document.getElementById('complejidadGroup');
+
+            if (tipo === 'Hospital') {
+                complejidadGroup.style.display = 'block';
+            } else {
+                complejidadGroup.style.display = 'none';
+                document.getElementById('complejidad').value = '';
+            }
+        }
+
+        // ============================================
+        // FUNCIONES DE SUPABASE
+        // ============================================
+        async function verificarConexion() {
+            const statusEl = document.getElementById('connectionStatus');
+
+            try {
+                const { data, error } = await supabase
+                    .from('centros_salud')
+                    .select('count');
+
+                if (error) throw error;
+
+                statusEl.className = 'connection-status connected';
+                statusEl.innerHTML = '<span>✓</span> Conectado a BD';
+                setTimeout(() => {
+                    statusEl.style.opacity = '0';
+                    setTimeout(() => statusEl.style.display = 'none', 300);
+                }, 2000);
+                return true;
+            } catch (error) {
+                console.error('Error de conexión:', error);
+                statusEl.className = 'connection-status disconnected';
+                statusEl.innerHTML = '<span>✗</span> Sin conexión';
+                mostrarError('Error de conexión a la base de datos. Verificá la configuración de Supabase.');
+                return false;
+            }
+        }
+
+        async function cargarCentros() {
+            try {
+                const { data, error } = await supabase
+                    .from('centros_salud')
+                    .select('*')
+                    .order('nombre', { ascending: true });
+
+                if (error) throw error;
+
+                centrosSalud = data;
+                actualizarTodo();
+                return true;
+            } catch (error) {
+                console.error('Error al cargar centros:', error);
+                mostrarError('Error al cargar los centros de salud: ' + error.message);
+                return false;
+            }
+        }
+
+        async function insertarCentro(centro) {
+            try {
+                const { data, error } = await supabase
+                    .from('centros_salud')
+                    .insert([{
+                        nombre: centro.nombre,
+                        tipo: centro.tipo,
+                        zona: centro.zona,
+                        localidad: centro.localidad,
+                        direccion: centro.direccion || null,
+                        telefono: centro.telefono || null,
+                        email: centro.email || null,
+                        proveedor_internet: centro.proveedor || null,
+                        velocidad_mbps: centro.velocidad || null,
+                        cantidad_pcs: centro.cantidadPCs || null,
+                        tipo_conexion: centro.tipoConexion || null,
+                        complejidad: centro.complejidad || null,
+                        observaciones: centro.observaciones || null
+                    }])
+                    .select();
+
+                if (error) throw error;
+
+                return data[0];
+            } catch (error) {
+                console.error('Error al insertar centro:', error);
+                throw error;
+            }
+        }
+
+        async function actualizarCentro(id, centro) {
+            try {
+                const { data, error } = await supabase
+                    .from('centros_salud')
+                    .update({
+                        nombre: centro.nombre,
+                        tipo: centro.tipo,
+                        zona: centro.zona,
+                        localidad: centro.localidad,
+                        direccion: centro.direccion || null,
+                        telefono: centro.telefono || null,
+                        email: centro.email || null,
+                        proveedor_internet: centro.proveedor || null,
+                        velocidad_mbps: centro.velocidad || null,
+                        cantidad_pcs: centro.cantidadPCs || null,
+                        tipo_conexion: centro.tipoConexion || null,
+                        complejidad: centro.complejidad || null,
+                        observaciones: centro.observaciones || null
+                    })
+                    .eq('id', id)
+                    .select();
+
+                if (error) throw error;
+
+                return data[0];
+            } catch (error) {
+                console.error('Error al actualizar centro:', error);
+                throw error;
+            }
+        }
+
+        async function eliminarCentroDB(id) {
+            try {
+                const { error } = await supabase
+                    .from('centros_salud')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                return true;
+            } catch (error) {
+                console.error('Error al eliminar centro:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // FUNCIONES DE INTERFAZ
+        // ============================================
+        function mostrarError(mensaje) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = mensaje;
+
+            const container = document.querySelector('.tab-content.active');
+            container.insertBefore(errorDiv, container.firstChild);
+
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+
+        function mostrarCargando(containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando datos...</div>';
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const conectado = await verificarConexion();
+            if (conectado) {
+                await cargarCentros();
+            }
+        });
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'consulta') {
+                filtrarCentros();
+            } else if (tabName === 'gestion') {
+                mostrarGestion();
+            } else if (tabName === 'reportes') {
+                generarReporte();
+            }
+        }
+
+        function cargarLocalidades() {
+            const zona = document.getElementById('zona').value;
+            const selectLocalidad = document.getElementById('localidad');
+            selectLocalidad.innerHTML = '<option value="">Seleccionar...</option>';
+
+            if (zona && localidadesPorZona[zona]) {
+                localidadesPorZona[zona].forEach(loc => {
+                    selectLocalidad.innerHTML += `<option value="${loc}">${loc}</option>`;
+                });
+            }
+        }
+
+        function filtrarCentros() {
+            const zona = document.getElementById('filtroZona').value;
+            const tipo = document.getElementById('filtroTipo').value;
+            const complejidad = document.getElementById('filtroComplejidad').value;
+            const localidad = document.getElementById('filtroLocalidad').value;
+            const busqueda = document.getElementById('filtroBusqueda').value.toLowerCase();
+
+            const selectLocalidad = document.getElementById('filtroLocalidad');
+            if (zona && localidadesPorZona[zona]) {
+                selectLocalidad.innerHTML = '<option value="">Todas las localidades</option>';
+                localidadesPorZona[zona].forEach(loc => {
+                    selectLocalidad.innerHTML += `<option value="${loc}">${loc}</option>`;
+                });
+            } else if (!zona) {
+                selectLocalidad.innerHTML = '<option value="">Todas las localidades</option>';
+            }
+
+            let filtrados = centrosSalud.filter(centro => {
+                const matchZona = !zona || centro.zona === zona;
+                const matchTipo = !tipo || centro.tipo === tipo;
+                const matchComplejidad = !complejidad || (centro.complejidad && centro.complejidad == complejidad);
+                const matchLocalidad = !localidad || centro.localidad === localidad;
+                const matchBusqueda = !busqueda || centro.nombre.toLowerCase().includes(busqueda);
+                return matchZona && matchTipo && matchComplejidad && matchLocalidad && matchBusqueda;
+            });
+
+            mostrarCentros(filtrados);
+        }
+
+        function mostrarCentros(centros) {
+            const container = document.getElementById('centrosListado');
+            const info = document.getElementById('resultsInfo');
+
+            if (centros.length === 0) {
+                container.innerHTML = '<div class="no-results">No se encontraron centros con los filtros seleccionados</div>';
+                info.textContent = 'No hay resultados';
+                return;
+            }
+
+            info.textContent = `Mostrando ${centros.length} centro${centros.length !== 1 ? 's' : ''}`;
+
+            container.innerHTML = centros.map(centro => `
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${centro.nombre}</div>
+                            <span class="badge badge-${centro.tipo.toLowerCase().replace(' ', '-')}">${centro.tipo}</span>
+                            ${centro.complejidad ? `<span class="badge badge-nivel-${centro.complejidad}">${getNivelComplejidadShort(centro.complejidad)}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">🌍 Zona:</span>
+                            ${centro.zona}
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">📍 Localidad:</span>
+                            ${centro.localidad}
+                        </div>
+                        ${centro.direccion ? `
+                        <div class="info-item">
+                            <span class="info-label">🏠 Dirección:</span>
+                            ${centro.direccion}
+                        </div>
+                        ` : ''}
+                        ${centro.telefono ? `
+                        <div class="info-item">
+                            <span class="info-label">📞 Teléfono:</span>
+                            ${centro.telefono}
+                        </div>
+                        ` : ''}
+                        ${centro.email ? `
+                        <div class="info-item">
+                            <span class="info-label">✉️ Email:</span>
+                            ${centro.email}
+                        </div>
+                        ` : ''}
+                        ${centro.proveedor_internet ? `
+                        <div class="info-item">
+                            <span class="info-label">🌐 Proveedor:</span>
+                            ${centro.proveedor_internet}
+                        </div>
+                        ` : ''}
+                        ${centro.velocidad_mbps ? `
+                        <div class="info-item">
+                            <span class="info-label">⚡ Velocidad:</span>
+                            ${centro.velocidad_mbps} Mbps
+                        </div>
+                        ` : ''}
+                        ${centro.cantidad_pcs ? `
+                        <div class="info-item">
+                            <span class="info-label">💻 Cantidad PCs:</span>
+                            ${centro.cantidad_pcs}
+                        </div>
+                        ` : ''}
+                        ${centro.tipo_conexion ? `
+                        <div class="info-item">
+                            <span class="info-label">🔌 Tipo Conexión:</span>
+                            ${centro.tipo_conexion}
+                        </div>
+                        ` : ''}
+                    </div>
+                    ${centro.observaciones ? `
+                    <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 6px;">
+                        <strong>📝 Observaciones:</strong> ${centro.observaciones}
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function mostrarGestion() {
+            const container = document.getElementById('centrosGestion');
+
+            if (centrosSalud.length === 0) {
+                container.innerHTML = '<div class="no-results">No hay centros registrados. Agregá el primero haciendo clic en "Nuevo Centro"</div>';
+                return;
+            }
+
+            container.innerHTML = centrosSalud.map(centro => `
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${centro.nombre}</div>
+                            <span class="badge badge-${centro.tipo.toLowerCase().replace(' ', '-')}">${centro.tipo}</span>
+                            ${centro.complejidad ? `<span class="badge badge-nivel-${centro.complejidad}">${getNivelComplejidadShort(centro.complejidad)}</span>` : ''}
+                            <span style="color: #666; font-size: 0.9em; margin-left: 10px;">${centro.zona} - ${centro.localidad}</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-warning" onclick="editarCentro(${centro.id})">✏️ Editar</button>
+                            <button class="btn btn-danger" onclick="eliminarCentro(${centro.id})">🗑️ Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function mostrarModalNuevo() {
+            editandoId = null;
+            document.getElementById('modalTitle').textContent = 'Nuevo Centro de Salud';
+            document.getElementById('formCentro').reset();
+            document.getElementById('centroId').value = '';
+            document.getElementById('complejidadGroup').style.display = 'none';
+            document.getElementById('modalCentro').classList.add('active');
+        }
+
+        function editarCentro(id) {
+            const centro = centrosSalud.find(c => c.id === id);
+            if (!centro) return;
+
+            editandoId = id;
+            document.getElementById('modalTitle').textContent = 'Editar Centro de Salud';
+            document.getElementById('centroId').value = id;
+            document.getElementById('nombre').value = centro.nombre;
+            document.getElementById('tipo').value = centro.tipo;
+
+            // Mostrar/ocultar complejidad
+            if (centro.tipo === 'Hospital') {
+                document.getElementById('complejidadGroup').style.display = 'block';
+                document.getElementById('complejidad').value = centro.complejidad || '';
+            } else {
+                document.getElementById('complejidadGroup').style.display = 'none';
+            }
+
+            document.getElementById('zona').value = centro.zona;
+            cargarLocalidades();
+            setTimeout(() => {
+                document.getElementById('localidad').value = centro.localidad;
+            }, 100);
+            document.getElementById('direccion').value = centro.direccion || '';
+            document.getElementById('telefono').value = centro.telefono || '';
+            document.getElementById('email').value = centro.email || '';
+            document.getElementById('proveedor').value = centro.proveedor_internet || '';
+            document.getElementById('velocidad').value = centro.velocidad_mbps || '';
+            document.getElementById('cantidadPCs').value = centro.cantidad_pcs || '';
+            document.getElementById('tipoConexion').value = centro.tipo_conexion || '';
+            document.getElementById('observaciones').value = centro.observaciones || '';
+
+            document.getElementById('modalCentro').classList.add('active');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalCentro').classList.remove('active');
+            document.getElementById('formCentro').reset();
+            document.getElementById('complejidadGroup').style.display = 'none';
+            editandoId = null;
+        }
+
+        async function guardarCentro(event) {
+            event.preventDefault();
+
+            const btnGuardar = document.getElementById('btnGuardar');
+            btnGuardar.disabled = true;
+            btnGuardar.textContent = '⏳ Guardando...';
+
+            const centro = {
+                nombre: document.getElementById('nombre').value,
+                tipo: document.getElementById('tipo').value,
+                zona: document.getElementById('zona').value,
+                localidad: document.getElementById('localidad').value,
+                direccion: document.getElementById('direccion').value,
+                telefono: document.getElementById('telefono').value,
+                email: document.getElementById('email').value,
+                proveedor: document.getElementById('proveedor').value,
+                velocidad: parseInt(document.getElementById('velocidad').value) || null,
+                cantidadPCs: parseInt(document.getElementById('cantidadPCs').value) || null,
+                tipoConexion: document.getElementById('tipoConexion').value,
+                complejidad: document.getElementById('complejidad').value ? parseInt(document.getElementById('complejidad').value) : null,
+                observaciones: document.getElementById('observaciones').value
+            };
+
+            try {
+                if (editandoId) {
+                    await actualizarCentro(editandoId, centro);
+                } else {
+                    await insertarCentro(centro);
+                }
+
+                await cargarCentros();
+                cerrarModal();
+                alert('Centro guardado correctamente');
+            } catch (error) {
+                alert('Error al guardar el centro: ' + error.message);
+            } finally {
+                btnGuardar.disabled = false;
+                btnGuardar.textContent = '💾 Guardar';
+            }
+        }
+
+        async function eliminarCentro(id) {
+            if (!confirm('¿Estás seguro de eliminar este centro?')) return;
+
+            try {
+                await eliminarCentroDB(id);
+                await cargarCentros();
+                alert('Centro eliminado correctamente');
+            } catch (error) {
+                alert('Error al eliminar el centro: ' + error.message);
+            }
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('filtroZona').value = '';
+            document.getElementById('filtroTipo').value = '';
+            document.getElementById('filtroComplejidad').value = '';
+            document.getElementById('filtroLocalidad').value = '';
+            document.getElementById('filtroBusqueda').value = '';
+            filtrarCentros();
+        }
+
+        function generarReporte() {
+            const tipo = document.getElementById('tipoReporte').value;
+            const zona = document.getElementById('reporteZona').value;
+            const container = document.getElementById('reporteContenido');
+
+            let centrosFiltrados = zona ? centrosSalud.filter(c => c.zona === zona) : centrosSalud;
+
+            if (tipo === 'general') {
+                const stats = {
+                    total: centrosFiltrados.length,
+                    hospitales: centrosFiltrados.filter(c => c.tipo === 'Hospital').length,
+                    caps: centrosFiltrados.filter(c => c.tipo === 'CAPS').length,
+                    centros: centrosFiltrados.filter(c => c.tipo === 'Centro de Salud').length,
+                    conConectividad: centrosFiltrados.filter(c => c.proveedor_internet).length,
+                    totalPCs: centrosFiltrados.reduce((sum, c) => sum + (c.cantidad_pcs || 0), 0),
+                    nivel8: centrosFiltrados.filter(c => c.complejidad === 8).length,
+                    nivel6: centrosFiltrados.filter(c => c.complejidad === 6).length,
+                    nivel4: centrosFiltrados.filter(c => c.complejidad === 4).length,
+                    nivel3: centrosFiltrados.filter(c => c.complejidad === 3).length
+                };
+
+                container.innerHTML = `
+                    <div class="report-section">
+                        <h3>📊 Estadísticas Generales${zona ? ' - ' + zona : ''}</h3>
+                        <div class="report-stats">
+                            <div class="stat-card">
+                                <div class="stat-number">${stats.total}</div>
+                                <div class="stat-label">Total Centros</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${stats.hospitales}</div>
+                                <div class="stat-label">Hospitales</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${stats.caps}</div>
+                                <div class="stat-label">CAPS</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${stats.centros}</div>
+                                <div class="stat-label">Centros de Salud</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${stats.conConectividad}</div>
+                                <div class="stat-label">Con Conectividad</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${stats.totalPCs}</div>
+                                <div class="stat-label">Total PCs</div>
+                            </div>
+                        </div>
+                        ${stats.hospitales > 0 ? `
+                        <h4 style="margin-top: 20px; color: #667eea;">Hospitales por Complejidad</h4>
+                        <div class="report-stats">
+                            <div class="stat-card" style="border-left-color: #8b0000;">
+                                <div class="stat-number">${stats.nivel8}</div>
+                                <div class="stat-label">Nivel 8 - Alta</div>
+                            </div>
+                            <div class="stat-card" style="border-left-color: #dc3545;">
+                                <div class="stat-number">${stats.nivel6}</div>
+                                <div class="stat-label">Nivel 6 - Mediana</div>
+                            </div>
+                            <div class="stat-card" style="border-left-color: #ffc107;">
+                                <div class="stat-number">${stats.nivel4}</div>
+                                <div class="stat-label">Nivel 4 - Mediana-Baja</div>
+                            </div>
+                            <div class="stat-card" style="border-left-color: #28a745;">
+                                <div class="stat-number">${stats.nivel3}</div>
+                                <div class="stat-label">Nivel 3 - Baja</div>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else if (tipo === 'complejidad') {
+                const hospitales = centrosFiltrados.filter(c => c.tipo === 'Hospital');
+                const porNivel = {
+                    8: hospitales.filter(h => h.complejidad === 8),
+                    6: hospitales.filter(h => h.complejidad === 6),
+                    4: hospitales.filter(h => h.complejidad === 4),
+                    3: hospitales.filter(h => h.complejidad === 3)
+                };
+
+                container.innerHTML = `
+                    <div class="report-section">
+                        <h3>📊 Reporte por Nivel de Complejidad${zona ? ' - ' + zona : ''}</h3>
+                        ${Object.entries(porNivel).map(([nivel, hosps]) => `
+                            ${hosps.length > 0 ? `
+                            <div style="margin-bottom: 30px;">
+                                <h4 style="color: #667eea; margin-bottom: 10px;">${getNivelComplejidadText(parseInt(nivel))} (${hosps.length} hospital${hosps.length !== 1 ? 'es' : ''})</h4>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background: #f8f9fa;">
+                                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Hospital</th>
+                                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Zona</th>
+                                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Localidad</th>
+                                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">PCs</th>
+                                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Velocidad</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${hosps.map(h => `
+                                            <tr>
+                                                <td style="padding: 10px; border: 1px solid #ddd;">${h.nombre}</td>
+                                                <td style="padding: 10px; border: 1px solid #ddd;">${h.zona}</td>
+                                                <td style="padding: 10px; border: 1px solid #ddd;">${h.localidad}</td>
+                                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${h.cantidad_pcs || '-'}</td>
+                                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${h.velocidad_mbps ? h.velocidad_mbps + ' Mbps' : '-'}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            ` : ''}
+                        `).join('')}
+                    </div>
+                `;
+            } else if (tipo === 'zona') {
+                const porZona = {};
+                Object.keys(localidadesPorZona).forEach(z => {
+                    porZona[z] = centrosSalud.filter(c => c.zona === z);
+                });
+
+                container.innerHTML = `
+                    <div class="report-section">
+                        <h3>📊 Reporte por Zona Sanitaria</h3>
+                        ${Object.entries(porZona).map(([zona, centros]) => `
+                            <div style="margin-bottom: 30px;">
+                                <h4 style="color: #667eea; margin-bottom: 10px;">${zona} (${centros.length} centros)</h4>
+                                <div class="report-stats">
+                                    <div class="stat-card">
+                                        <div class="stat-number">${centros.filter(c => c.tipo === 'Hospital').length}</div>
+                                        <div class="stat-label">Hospitales</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-number">${centros.filter(c => c.tipo === 'CAPS').length}</div>
+                                        <div class="stat-label">CAPS</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-number">${centros.filter(c => c.tipo === 'Centro de Salud').length}</div>
+                                        <div class="stat-label">Centros de Salud</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (tipo === 'conectividad') {
+                const conConectividad = centrosFiltrados.filter(c => c.proveedor_internet);
+
+                container.innerHTML = `
+                    <div class="report-section">
+                        <h3>🌐 Reporte de Conectividad${zona ? ' - ' + zona : ''}</h3>
+                        <div class="report-stats">
+                            <div class="stat-card">
+                                <div class="stat-number">${conConectividad.length}</div>
+                                <div class="stat-label">Centros con Conectividad</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${centrosFiltrados.length - conConectividad.length}</div>
+                                <div class="stat-label">Sin Datos de Conectividad</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${centrosFiltrados.reduce((sum, c) => sum + (c.cantidad_pcs || 0), 0)}</div>
+                                <div class="stat-label">Total PCs</div>
+                            </div>
+                        </div>
+                        ${conConectividad.length > 0 ? `
+                            <table style="width: 100%; margin-top: 20px; border-collapse: collapse; background: white;">
+                                <thead>
+                                    <tr style="background: #667eea; color: white;">
+                                        <th style="padding: 10px; text-align: left;">Centro</th>
+                                        <th style="padding: 10px; text-align: left;">Tipo</th>
+                                        <th style="padding: 10px; text-align: left;">Localidad</th>
+                                        <th style="padding: 10px; text-align: left;">Proveedor</th>
+                                        <th style="padding: 10px; text-align: center;">Velocidad</th>
+                                        <th style="padding: 10px; text-align: center;">PCs</th>
+                                        <th style="padding: 10px; text-align: left;">Tipo Conexión</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${conConectividad.map(c => `
+                                        <tr style="border-bottom: 1px solid #ddd;">
+                                            <td style="padding: 10px;">${c.nombre}</td>
+                                            <td style="padding: 10px;">${c.tipo}</td>
+                                            <td style="padding: 10px;">${c.localidad}</td>
+                                            <td style="padding: 10px;">${c.proveedor_internet || '-'}</td>
+                                            <td style="padding: 10px; text-align: center;">${c.velocidad_mbps ? c.velocidad_mbps + ' Mbps' : '-'}</td>
+                                            <td style="padding: 10px; text-align: center;">${c.cantidad_pcs || '-'}</td>
+                                            <td style="padding: 10px;">${c.tipo_conexion || '-'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        ` : '<p style="text-align: center; padding: 20px;">No hay datos de conectividad registrados</p>'}
+                    </div>
+                `;
+            }
+        }
+
+        function exportarDatos() {
+            const data = JSON.stringify(centrosSalud, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'centros_salud_rionegro_' + new Date().toISOString().split('T')[0] + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function actualizarTodo() {
+            filtrarCentros();
+            mostrarGestion();
+            generarReporte();
+        }
+    </script>
+</body>
+</html>
