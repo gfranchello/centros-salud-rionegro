@@ -600,6 +600,44 @@
                 <button class="btn btn-success" onclick="mostrarModalNuevo()">➕ Nuevo Centro</button>
                 <button class="btn btn-primary" onclick="cargarCentros()">🔄 Recargar Datos</button>
             </div>
+
+            <div class="filters-section" style="margin-bottom: 20px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div style="flex: 1;">
+                        <label>🔍 Buscar Centro:</label>
+                        <input type="text" id="busquedaGestion" placeholder="Escribir nombre del centro..." onkeyup="filtrarGestion()" style="width: 100%;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Zona:</label>
+                        <select id="filtroZonaGestion" onchange="filtrarGestion()" style="width: 100%;">
+                            <option value="">Todas las zonas</option>
+                            <option value="Alto Valle Oeste">Alto Valle Oeste</option>
+                            <option value="Alto Valle Este">Alto Valle Este</option>
+                            <option value="Valle Medio">Valle Medio</option>
+                            <option value="Zona Atlantica">Zona Atlantica</option>
+                            <option value="Zona Andina">Zona Andina</option>
+                            <option value="Zona Sur">Zona Sur</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Tipo:</label>
+                        <select id="filtroTipoGestion" onchange="filtrarGestion()" style="width: 100%;">
+                            <option value="">Todos los tipos</option>
+                            <option value="Hospital">Hospital</option>
+                            <option value="Hospital Cabecera">Hospital Cabecera</option>
+                            <option value="CAPS">CAPS</option>
+                            <option value="Centro de Salud">Centro de Salud</option>
+                            <option value="Puesto Sanitario">Puesto Sanitario</option>
+                            <option value="Posta de Salud">Posta de Salud</option>
+                        </select>
+                    </div>
+                    <div style="padding-top: 25px;">
+                        <button class="btn btn-secondary" onclick="limpiarFiltrosGestion()">🔄 Limpiar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-info" id="resultsInfoGestion"></div>
             <div id="centrosGestion"></div>
         </div>
 
@@ -1209,15 +1247,29 @@
             `).join('');
         }
 
-        function mostrarGestion() {
+        function mostrarGestion(centrosFiltrados = null) {
             const container = document.getElementById('centrosGestion');
+            const info = document.getElementById('resultsInfoGestion');
+
+            // Si no se pasan centros filtrados, usar todos
+            const centrosAMostrar = centrosFiltrados !== null ? centrosFiltrados : centrosSalud;
 
             if (centrosSalud.length === 0) {
                 container.innerHTML = '<div class="no-results">No hay centros registrados. Agregá el primero haciendo clic en "Nuevo Centro"</div>';
+                info.textContent = '';
                 return;
             }
 
-            container.innerHTML = centrosSalud.map(centro => `
+            if (centrosAMostrar.length === 0) {
+                container.innerHTML = '<div class="no-results">No se encontraron centros con los filtros seleccionados</div>';
+                info.textContent = 'No hay resultados';
+                return;
+            }
+
+            // Actualizar contador
+            info.textContent = `Mostrando ${centrosAMostrar.length} de ${centrosSalud.length} centro${centrosAMostrar.length !== 1 ? 's' : ''}`;
+
+            container.innerHTML = centrosAMostrar.map(centro => `
                 <div class="card">
                     ${centro.imagen_url ?
                         `<img src="${centro.imagen_url}" class="card-image" alt="${centro.nombre}">` :
@@ -1237,6 +1289,32 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        function filtrarGestion() {
+            const busqueda = document.getElementById('busquedaGestion').value.toLowerCase();
+            const zona = document.getElementById('filtroZonaGestion').value;
+            const tipo = document.getElementById('filtroTipoGestion').value;
+
+            let filtrados = centrosSalud.filter(centro => {
+                const matchBusqueda = !busqueda ||
+                    (centro.nombre && centro.nombre.toLowerCase().includes(busqueda)) ||
+                    (centro.nombre_completo && centro.nombre_completo.toLowerCase().includes(busqueda)) ||
+                    (centro.area_programa && centro.area_programa.toLowerCase().includes(busqueda));
+                const matchZona = !zona || centro.zona === zona;
+                const matchTipo = !tipo || centro.tipo === tipo;
+
+                return matchBusqueda && matchZona && matchTipo;
+            });
+
+            mostrarGestion(filtrados);
+        }
+
+        function limpiarFiltrosGestion() {
+            document.getElementById('busquedaGestion').value = '';
+            document.getElementById('filtroZonaGestion').value = '';
+            document.getElementById('filtroTipoGestion').value = '';
+            mostrarGestion();
         }
 
         function mostrarModalNuevo() {
