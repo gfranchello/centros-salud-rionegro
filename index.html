@@ -315,18 +315,8 @@
             color: white;
         }
 
-        .badge-hospital-cabecera {
-            background: #8b0000;
-            color: white;
-        }
-
         .badge-caps {
             background: #28a745;
-            color: white;
-        }
-
-        .badge-centro-de-salud {
-            background: #17a2b8;
             color: white;
         }
 
@@ -624,9 +614,7 @@
                         <select id="filtroTipoGestion" onchange="filtrarGestion()" style="width: 100%;">
                             <option value="">Todos los tipos</option>
                             <option value="Hospital">Hospital</option>
-                            <option value="Hospital Cabecera">Hospital Cabecera</option>
                             <option value="CAPS">CAPS</option>
-                            <option value="Centro de Salud">Centro de Salud</option>
                             <option value="Puesto Sanitario">Puesto Sanitario</option>
                             <option value="Posta de Salud">Posta de Salud</option>
                         </select>
@@ -663,9 +651,7 @@
                         <select id="filtroTipo" onchange="filtrarCentros()">
                             <option value="">Todos los tipos</option>
                             <option value="Hospital">Hospital</option>
-                            <option value="Hospital Cabecera">Hospital Cabecera</option>
                             <option value="CAPS">CAPS</option>
-                            <option value="Centro de Salud">Centro de Salud</option>
                             <option value="Puesto Sanitario">Puesto Sanitario</option>
                             <option value="Posta de Salud">Posta de Salud</option>
                         </select>
@@ -753,9 +739,7 @@
                         <select id="tipo" required>
                             <option value="">Seleccionar...</option>
                             <option value="Hospital">Hospital</option>
-                            <option value="Hospital Cabecera">Hospital Cabecera</option>
                             <option value="CAPS">CAPS</option>
-                            <option value="Centro de Salud">Centro de Salud</option>
                             <option value="Puesto Sanitario">Puesto Sanitario</option>
                             <option value="Posta de Salud">Posta de Salud</option>
                         </select>
@@ -786,6 +770,7 @@
                     </div>
                 </div>
 
+                <!-- MÓDULO IMPLEMENTACIÓN DE SISTEMAS - OCULTO
                 <h3 style="margin: 20px 0 15px; color: #667eea;">💻 Implementación de Sistemas</h3>
                 <div class="form-grid">
                     <div class="form-group">
@@ -809,6 +794,7 @@
                         <textarea id="modulosInstalados" rows="3" placeholder="Detalle de módulos de sistemas instalados"></textarea>
                     </div>
                 </div>
+                FIN MÓDULO OCULTO -->
 
                 <h3 style="margin: 20px 0 15px; color: #667eea;">🌐 Conectividad</h3>
                 <div class="form-grid">
@@ -882,7 +868,8 @@
         // CONFIGURACIÓN DE SUPABASE
         // ============================================
         const SUPABASE_URL = 'https://voyyztnhbapxwygyyncs.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZveXl6dG5oYmFweHd5Z3l5bmNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMzA0NjgsImV4cCI6MjA3OTYwNjQ2OH0.iJRvYwwML1OqfblTZ-cq4vlw3hQUxrq_2WMKMMCp2Yw';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZveXl6dG5oYmFweHd5Z3l5bmNzIi
+wicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMzA0NjgsImV4cCI6MjA3OTYwNjQ2OH0.iJRvYwwML1OqfblTZ-cq4vlw3hQUxrq_2WMKMMCp2Yw';
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -1343,11 +1330,12 @@
             document.getElementById('zona').value = centro.zona;
             document.getElementById('areaPrograma').value = centro.area_programa || '';
             document.getElementById('direccion').value = centro.direccion || '';
-            document.getElementById('estadoImplementacion').value = centro.estado_implementacion || '';
-            document.getElementById('modulosInstalados').value = centro.modulos_instalados || '';
-            document.getElementById('avance').value = centro.avance || '';
-            document.getElementById('fechaActualizacion').value = centro.fecha_ultima_actualizacion || '';
-            document.getElementById('responsableInformatica').value = centro.responsable_informatica || '';
+            // CAMPOS DE IMPLEMENTACIÓN - OCULTOS
+            // document.getElementById('estadoImplementacion').value = centro.estado_implementacion || '';
+            // document.getElementById('modulosInstalados').value = centro.modulos_instalados || '';
+            // document.getElementById('avance').value = centro.avance || '';
+            // document.getElementById('fechaActualizacion').value = centro.fecha_ultima_actualizacion || '';
+            // document.getElementById('responsableInformatica').value = centro.responsable_informatica || '';
             document.getElementById('proveedor').value = centro.proveedor_internet || '';
             document.getElementById('velocidad').value = centro.velocidad_mbps || '';
             document.getElementById('cantidadPCs').value = centro.cantidad_pcs || '';
@@ -1402,11 +1390,12 @@
                     zona: document.getElementById('zona').value,
                     areaPrograma: document.getElementById('areaPrograma').value,
                     direccion: document.getElementById('direccion').value,
-                    estadoImplementacion: document.getElementById('estadoImplementacion').value,
-                    modulosInstalados: document.getElementById('modulosInstalados').value,
-                    avance: document.getElementById('avance').value,
-                    fechaActualizacion: document.getElementById('fechaActualizacion').value,
-                    responsableInformatica: document.getElementById('responsableInformatica').value,
+                    // CAMPOS DE IMPLEMENTACIÓN - OCULTOS (se guardan como null)
+                    estadoImplementacion: null,
+                    modulosInstalados: null,
+                    avance: null,
+                    fechaActualizacion: null,
+                    responsableInformatica: null,
                     proveedor: document.getElementById('proveedor').value,
                     velocidad: parseInt(document.getElementById('velocidad').value) || null,
                     cantidadPCs: parseInt(document.getElementById('cantidadPCs').value) || null,
@@ -1464,9 +1453,7 @@
                 const stats = {
                     total: centrosFiltrados.length,
                     hospitales: centrosFiltrados.filter(c => c.tipo === 'Hospital').length,
-                    hospitalesCabecera: centrosFiltrados.filter(c => c.tipo === 'Hospital Cabecera').length,
                     caps: centrosFiltrados.filter(c => c.tipo === 'CAPS').length,
-                    centros: centrosFiltrados.filter(c => c.tipo === 'Centro de Salud').length,
                     puestos: centrosFiltrados.filter(c => c.tipo === 'Puesto Sanitario').length,
                     postas: centrosFiltrados.filter(c => c.tipo === 'Posta de Salud').length,
                     conConectividad: centrosFiltrados.filter(c => c.proveedor_internet).length,
@@ -1486,16 +1473,8 @@
                                 <div class="stat-label">Hospitales</div>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-number">${stats.hospitalesCabecera}</div>
-                                <div class="stat-label">Hospitales Cabecera</div>
-                            </div>
-                            <div class="stat-card">
                                 <div class="stat-number">${stats.caps}</div>
                                 <div class="stat-label">CAPS</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">${stats.centros}</div>
-                                <div class="stat-label">Centros de Salud</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-number">${stats.puestos}</div>
@@ -1531,7 +1510,7 @@
                                 <h4 style="color: #667eea; margin-bottom: 10px;">${zona} (${centros.length} centros)</h4>
                                 <div class="report-stats">
                                     <div class="stat-card">
-                                        <div class="stat-number">${centros.filter(c => c.tipo === 'Hospital' || c.tipo === 'Hospital Cabecera').length}</div>
+                                        <div class="stat-number">${centros.filter(c => c.tipo === 'Hospital').length}</div>
                                         <div class="stat-label">Hospitales</div>
                                     </div>
                                     <div class="stat-card">
@@ -1539,12 +1518,12 @@
                                         <div class="stat-label">CAPS</div>
                                     </div>
                                     <div class="stat-card">
-                                        <div class="stat-number">${centros.filter(c => c.tipo === 'Centro de Salud').length}</div>
-                                        <div class="stat-label">Centros de Salud</div>
-                                    </div>
-                                    <div class="stat-card">
                                         <div class="stat-number">${centros.filter(c => c.tipo === 'Puesto Sanitario').length}</div>
                                         <div class="stat-label">Puestos Sanitarios</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-number">${centros.filter(c => c.tipo === 'Posta de Salud').length}</div>
+                                        <div class="stat-label">Postas de Salud</div>
                                     </div>
                                 </div>
                             </div>
